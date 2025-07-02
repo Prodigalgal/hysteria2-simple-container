@@ -1,11 +1,16 @@
 #!/usr/bin/env sh
-# hy2/entrypoint.sh (轻量化最终版)
+# hy2/entrypoint.sh (已优化：支持自定义配置)
 set -e
 
-# --- 配置定义 ---
+# --- 配置定义 (从环境变量获取，提供默认值) ---
 DOMAIN=${DOMAIN:-fallback.example.com}
 PASSWORD=${PASSWORD:-changeme}
 LISTEN_PORT=443
+UP_MBPS=${UP_MBPS:-100}
+DOWN_MBPS=${DOWN_MBPS:-100}
+OBFS_TYPE=${OBFS_TYPE:-salamander}
+# 如果 OBFS_PASSWORD 未设置，则默认使用主 PASSWORD
+OBFS_PASSWORD_VAL=${OBFS_PASSWORD:-$PASSWORD}
 
 ACME_JSON_PATH="/etc/hysteria/certs/acme.json"
 CERT_DIR="/tmp" # 在容器内的临时目录生成证书，不污染挂载卷
@@ -53,13 +58,13 @@ cat > /etc/hysteria/config.json <<EOF
     "password": "${PASSWORD}"
   },
   "obfs": {
-    "type": "salamander",
+    "type": "${OBFS_TYPE}",
     "salamander": {
-      "password": "${PASSWORD}"
+      "password": "${OBFS_PASSWORD_VAL}"
     }
   },
-  "upMbps": 100,
-  "downMbps": 100,
+  "upMbps": ${UP_MBPS},
+  "downMbps": ${DOWN_MBPS},
   "disableMTUDiscovery": false
 }
 EOF
@@ -71,15 +76,16 @@ url_encode() {
     echo -n "$1" | sed -e 's|@|%40|g' -e 's|:|%3A|g' -e 's|/|%2F|g' -e 's|?|%3F|g' -e 's|#|%23|g' -e 's|&|%26|g' -e 's|=|%3D|g'
 }
 ENCODED_PASSWORD=$(url_encode "$PASSWORD")
+ENCODED_OBFS_PASSWORD=$(url_encode "$OBFS_PASSWORD_VAL")
 PUBLIC_PORT=443
-HY2_LINK="hy2://${ENCODED_PASSWORD}@${DOMAIN}:${PUBLIC_PORT}?sni=${DOMAIN}&obfs=salamander&obfs-password=${ENCODED_PASSWORD}"
+HY2_LINK="hy2://${ENCODED_PASSWORD}@${DOMAIN}:${PUBLIC_PORT}?sni=${DOMAIN}&obfs=${OBFS_TYPE}&obfs-password=${ENCODED_OBFS_PASSWORD}"
 
-echo "───────────────────────────────────────────────"
-echo "  ������ Hysteria2 通用分享链接 (轻量化最终版) ������"
+echo "────────────────────────────────────────────────────────"
+echo "  🎉 Hysteria2 通用分享链接 (已优化) 🎉"
 echo
 echo "  ${HY2_LINK}"
 echo
 echo "  服务器已成功启动！"
-echo "───────────────────────────────────────────────"
+echo "────────────────────────────────────────────────────────"
 
 wait
