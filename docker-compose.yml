@@ -1,4 +1,4 @@
-# hy2/docker-compose.yml (已优化：增加自定义配置)
+# hy2/docker-compose.yml (最终修正版：移除默认值以修复优先级问题)
 services:
   traefik:
     image: traefik:v2.10
@@ -34,12 +34,18 @@ services:
     environment:
       # --- 核心配置 ---
       - "DOMAIN=${DOMAIN}"
-      - "PASSWORD=${PASSWORD}"
-      # --- 自定义优化配置 ---
-      - "UP_MBPS=${UP_MBPS:-100}"         # 上传速度 (Mbps)
-      - "DOWN_MBPS=${DOWN_MBPS:-100}"       # 下载速度 (Mbps)
-      - "OBFS_TYPE=${OBFS_TYPE:-salamander}" # 混淆类型 (salamander / wechat-video)
-      - "OBFS_PASSWORD=${OBFS_PASSWORD}"     # 混淆密码 (默认使用主密码)
+      - "PASSWORD=${PASSWORD}"                   # 留空将自动生成随机密码
+
+      # --- 智能优化配置 ---
+      - "AUTO_SPEEDTEST=${AUTO_SPEEDTEST:-true}" # 是否自动测速 (true/false)
+      - "SPEED_DISCOUNT=${SPEED_DISCOUNT:-0.8}"  # 测速折扣率
+
+      # --- 自定义性能与混淆配置 ---
+      # 【重要修正】移除了这里的默认值 ":-100"，让脚本来处理默认逻辑
+      - "UP_MBPS=${UP_MBPS}"                     # 上传速度 (Mbps)
+      - "DOWN_MBPS=${DOWN_MBPS}"                   # 下载速度 (Mbps)
+      - "OBFS_TYPE=${OBFS_TYPE:-salamander}"       # 混淆类型
+      - "OBFS_PASSWORD=${OBFS_PASSWORD}"           # 混淆密码 (默认为主密码)
     labels:
       - "traefik.enable=true"
       # TCP Router: 负责处理伪装流量和申请/管理 TLS 证书

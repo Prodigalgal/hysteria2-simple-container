@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="362f4add-aecf-45be-bcc8-c693285895f1" name="更改" comment="">
+    <list default="true" id="362f4add-aecf-45be-bcc8-c693285895f1" name="更改" comment="feat: 增加多架构支持与自定义配置&#10;&#10;本次提交引入了多项增强功能，以提升项目的通用性和性能。&#10;&#10;- **多架构支持:** Dockerfile 现采用多阶段构建，同时支持 `amd64` 和 `arm64` 架构，使项目能运行在树莓派、ARM 云服务器等更多设备上。&#10;&#10;- **带宽配置:** 用户现在可以通过 `UP_MBPS` 和 `DOWN_MBPS` 环境变量来定制 Hysteria 的带宽限制。&#10;&#10;- **自定义混淆:** 混淆类型 (`OBFS_TYPE`) 和混淆密码 (`OBFS_PASSWORD`) 现已支持通过环境变量进行配置，为高级用户提供了更大的灵活性。&#10;&#10;- **构建优化:** 多阶段构建通过缓存二进制文件下载层，显著加快了后续的镜像构建速度。">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/entrypoint.sh" beforeDir="false" afterPath="$PROJECT_DIR$/entrypoint.sh" afterDir="false" />
@@ -43,14 +44,20 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "main",
     "go.import.settings.migrated": "true",
     "last_opened_file_path": "D:/WorkSpace/dockerspace/hysteria2-simple-container",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "org.rust.first.attach.projects": "true",
     "settings.editor.selected.configurable": "ssh.settings",
@@ -75,8 +82,17 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1751438169657</updated>
-      <workItem from="1751438170951" duration="203000" />
+      <workItem from="1751438170951" duration="1787000" />
     </task>
+    <task id="LOCAL-00001" summary="feat: 增加多架构支持与自定义配置&#10;&#10;本次提交引入了多项增强功能，以提升项目的通用性和性能。&#10;&#10;- **多架构支持:** Dockerfile 现采用多阶段构建，同时支持 `amd64` 和 `arm64` 架构，使项目能运行在树莓派、ARM 云服务器等更多设备上。&#10;&#10;- **带宽配置:** 用户现在可以通过 `UP_MBPS` 和 `DOWN_MBPS` 环境变量来定制 Hysteria 的带宽限制。&#10;&#10;- **自定义混淆:** 混淆类型 (`OBFS_TYPE`) 和混淆密码 (`OBFS_PASSWORD`) 现已支持通过环境变量进行配置，为高级用户提供了更大的灵活性。&#10;&#10;- **构建优化:** 多阶段构建通过缓存二进制文件下载层，显著加快了后续的镜像构建速度。">
+      <option name="closed" value="true" />
+      <created>1751438641237</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1751438641237</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -92,6 +108,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat: 增加多架构支持与自定义配置&#10;&#10;本次提交引入了多项增强功能，以提升项目的通用性和性能。&#10;&#10;- **多架构支持:** Dockerfile 现采用多阶段构建，同时支持 `amd64` 和 `arm64` 架构，使项目能运行在树莓派、ARM 云服务器等更多设备上。&#10;&#10;- **带宽配置:** 用户现在可以通过 `UP_MBPS` 和 `DOWN_MBPS` 环境变量来定制 Hysteria 的带宽限制。&#10;&#10;- **自定义混淆:** 混淆类型 (`OBFS_TYPE`) 和混淆密码 (`OBFS_PASSWORD`) 现已支持通过环境变量进行配置，为高级用户提供了更大的灵活性。&#10;&#10;- **构建优化:** 多阶段构建通过缓存二进制文件下载层，显著加快了后续的镜像构建速度。" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 增加多架构支持与自定义配置&#10;&#10;本次提交引入了多项增强功能，以提升项目的通用性和性能。&#10;&#10;- **多架构支持:** Dockerfile 现采用多阶段构建，同时支持 `amd64` 和 `arm64` 架构，使项目能运行在树莓派、ARM 云服务器等更多设备上。&#10;&#10;- **带宽配置:** 用户现在可以通过 `UP_MBPS` 和 `DOWN_MBPS` 环境变量来定制 Hysteria 的带宽限制。&#10;&#10;- **自定义混淆:** 混淆类型 (`OBFS_TYPE`) 和混淆密码 (`OBFS_PASSWORD`) 现已支持通过环境变量进行配置，为高级用户提供了更大的灵活性。&#10;&#10;- **构建优化:** 多阶段构建通过缓存二进制文件下载层，显著加快了后续的镜像构建速度。" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

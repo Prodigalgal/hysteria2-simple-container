@@ -1,7 +1,7 @@
-# hy2/Dockerfile (已优化：多阶段构建 & ARM/AMD64 支持)
+# hy2/Dockerfile (最终优化版：多阶段构建, ARM/AMD64支持, 内置测速工具)
 
 # --- 第一阶段: Builder ---
-# 负责下载与目标架构匹配的 Hysteria 二进制文件
+# 负责下载与目标架构匹配的 Hysteria 二进制文件，实现构建缓存和跨架构支持
 FROM alpine:3.18 AS builder
 
 # build-arg 会由 docker-compose 自动从 .env 或命令行传入
@@ -28,10 +28,20 @@ RUN case ${TARGETARCH} in \
 # 构建最终的轻量化运行镜像
 FROM alpine:3.18
 
-# 安装运行所必需的工具 (ca-certificates 用于 TLS, jq 用于解析 JSON)
+# 安装运行所必需的工具
+# ca-certificates: 用于 TLS 通信
+# jq: 用于解析 acme.json
+# python3 & py3-pip: speedtest-cli 的依赖
+# awk: 用于在 shell 中进行浮点数运算
 RUN apk add --no-cache \
       ca-certificates \
-      jq
+      jq \
+      python3 \
+      py3-pip \
+      gawk
+
+# 安装 speedtest-cli
+RUN pip3 install --no-cache-dir speedtest-cli
 
 WORKDIR /etc/hysteria
 
