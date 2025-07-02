@@ -1,0 +1,61 @@
+name: "🐛 Bug 报告"
+description: "报告一个 Bug，帮助我们改进项目。"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您花时间提交 Bug 报告！为避免重复，请先搜索现有的 issue。
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "描述这个 Bug"
+      description: "请清晰、简洁地描述这个 Bug 是什么。"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: "复现步骤"
+      description: "请提供复现该行为的详细步骤。"
+      placeholder: |
+        1. 设置环境变量: `LE_EMAIL=...`, `DOMAIN=...`, `PASSWORD=...`
+        2. 运行 `docker-compose up -d --build`
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "预期行为"
+      description: "请清晰、简洁地描述您期望发生的情况。"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "容器日志"
+      description: "请提供 Traefik 和 Hysteria 两个容器的完整日志。这对调试至关重要。"
+      placeholder: |
+        ```
+        # 运行以下命令，并将完整的输出粘贴到下方
+        docker-compose logs traefik
+        docker-compose logs hysteria-server
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "运行环境"
+      description: "请提供您的环境信息。"
+      placeholder: |
+        - 操作系统: [例如, Ubuntu 22.04]
+        - Docker 版本: [例如, 24.0.5]
+        - Docker Compose 版本: [例如, v2.20.2]
+        - 云服务商: [例如, DigitalOcean, AWS, 自建服务器]
