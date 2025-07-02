@@ -1,0 +1,36 @@
+name: "🚀 功能请求"
+description: "为这个项目提出一个新想法。"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您对改进本项目的兴趣！
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "您的功能请求是否与某个问题有关？"
+      description: "请清晰、简洁地描述问题所在。例如：'我总是对...感到困扰'"
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "您期望的解决方案是什么？"
+      description: "请清晰、简洁地描述您希望实现的功能。"
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "您考虑过的替代方案是什么？"
+      description: "请清晰、简洁地描述您考虑过的任何替代方案或功能。"
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "其他信息"
+      description: "在此处添加有关该功能请求的任何其他上下文或屏幕截图。"
