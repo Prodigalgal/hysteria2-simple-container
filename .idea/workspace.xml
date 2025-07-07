@@ -4,66 +4,73 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="362f4add-aecf-45be-bcc8-c693285895f1" name="更改" comment="feat: 增加多架构支持与自定义配置&#10;&#10;本次提交引入了多项增强功能，以提升项目的通用性和性能。&#10;&#10;- **多架构支持:** Dockerfile 现采用多阶段构建，同时支持 `amd64` 和 `arm64` 架构，使项目能运行在树莓派、ARM 云服务器等更多设备上。&#10;&#10;- **带宽配置:** 用户现在可以通过 `UP_MBPS` 和 `DOWN_MBPS` 环境变量来定制 Hysteria 的带宽限制。&#10;&#10;- **自定义混淆:** 混淆类型 (`OBFS_TYPE`) 和混淆密码 (`OBFS_PASSWORD`) 现已支持通过环境变量进行配置，为高级用户提供了更大的灵活性。&#10;&#10;- **构建优化:** 多阶段构建通过缓存二进制文件下载层，显著加快了后续的镜像构建速度。">
+    <list default="true" id="362f4add-aecf-45be-bcc8-c693285895f1" name="更改" comment="update：README">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entrypoint.sh" beforeDir="false" afterPath="$PROJECT_DIR$/entrypoint.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Prodigalgal"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Prodigalgal&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Prodigalgal/hysteria2-simple-container.git",
-    "accountId": "e3e02166-c2f7-4a95-ba0b-cde8f883b3df"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Prodigalgal/hysteria2-simple-container.git&quot;,
+    &quot;accountId&quot;: &quot;e3e02166-c2f7-4a95-ba0b-cde8f883b3df&quot;
   }
-}]]></component>
+}</component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="QtUREjUI" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 3
-}]]></component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="2" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="2zJ9AtvMa7CrupfOikorZSAw0ag" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="false" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
-    "go.import.settings.migrated": "true",
-    "last_opened_file_path": "D:/WorkSpace/dockerspace/hysteria2-simple-container",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "org.rust.first.attach.projects": "true",
-    "settings.editor.selected.configurable": "ssh.settings",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/WorkSpace/dockerspace/hysteria2-simple-container&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ssh.settings&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RustProjectSettings">
     <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
   </component>
@@ -71,7 +78,6 @@
     <attachedChunks>
       <set>
         <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26927.53" />
-        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-IU-251.26927.53" />
       </set>
     </attachedChunks>
   </component>
@@ -82,7 +88,10 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1751438169657</updated>
-      <workItem from="1751438170951" duration="1787000" />
+      <workItem from="1751438170951" duration="2780000" />
+      <workItem from="1751677944842" duration="24000" />
+      <workItem from="1751678024807" duration="17000" />
+      <workItem from="1751678809594" duration="1446000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 增加多架构支持与自定义配置&#10;&#10;本次提交引入了多项增强功能，以提升项目的通用性和性能。&#10;&#10;- **多架构支持:** Dockerfile 现采用多阶段构建，同时支持 `amd64` 和 `arm64` 架构，使项目能运行在树莓派、ARM 云服务器等更多设备上。&#10;&#10;- **带宽配置:** 用户现在可以通过 `UP_MBPS` 和 `DOWN_MBPS` 环境变量来定制 Hysteria 的带宽限制。&#10;&#10;- **自定义混淆:** 混淆类型 (`OBFS_TYPE`) 和混淆密码 (`OBFS_PASSWORD`) 现已支持通过环境变量进行配置，为高级用户提供了更大的灵活性。&#10;&#10;- **构建优化:** 多阶段构建通过缓存二进制文件下载层，显著加快了后续的镜像构建速度。">
       <option name="closed" value="true" />
@@ -92,7 +101,23 @@
       <option name="project" value="LOCAL" />
       <updated>1751438641237</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="feat: 实现全自动智能配置并修复启动健壮性问题&#10;&#10;本次提交是一次重大更新，引入了全自动的密码和带宽配置功能，并对启动脚本进行了全面加固，以解决一系列在实际部署中发现的竞态条件和逻辑缺陷。&#10;&#10;**新增核心功能:**&#10;&#10;1.  **自动密码生成:**&#10;    - 如果用户未提供 `PASSWORD` 环境变量，系统将自动生成一个 16 位的强随机密码，并清晰地打印在启动日志中，避免了用户使用弱密码或忘记设置密码的问题。&#10;&#10;2.  **自动带宽测速:**&#10;    - 新增 `AUTO_SPEEDTEST` 选项（默认开启）。启动时，容器会自动运行 `speedtest-cli` 来检测服务器的实际上下行带宽，并以此为依据智能配置 Hysteria 的性能参数，从而最大化利用服务器资源。&#10;&#10;**健壮性修复与优化:**&#10;&#10;1.  **修复配置优先级逻辑:**&#10;    - **问题:** 即使用户未手动设置带宽，`docker-compose.yml` 的默认值也会覆盖自动测速。&#10;    - **解决:** 将所有默认值处理逻辑从 `docker-compose.yml` 移至 `entrypoint.sh`，确保了正确的优先级顺序：**用户手动设置 &gt; 自动测速 &gt; 脚本内默认值**。&#10;&#10;2.  **解决启动时网络竞态问题:**&#10;    - **问题:** 自动测速在容器网络完全就绪前执行，导致立即失败。&#10;    - **解决:** 在测速前增加了 5 秒的等待时间 (`sleep 5`)，以确保网络初始化完成，从而大幅提升了测速成功率。&#10;&#10;3.  **修复随机密码长度不足问题:**&#10;    - **问题:** 旧的密码生成方法可能产生不满足 Hysteria 最低长度要求的密码，导致服务启动失败。&#10;    - **解决:** 采用 `LC_ALL=C tr -dc 'A-Za-z0-9' &lt; /dev/urandom | head -c 16` 的可靠方法，确保密码长度始终为 16 位。&#10;&#10;4.  **全面提升脚本健壮性:**&#10;    - **安全设置:** 脚本启用 `set -eu`，防止因变量未定义或命令失败而产生意外行为。&#10;    - **日志优化:** 调整了日志输出顺序，使其更加线性、易于理解，并为所有关键步骤和错误场景增加了清晰的提示信息。&#10;    - **依赖安装:** 在 `Dockerfile` 中添加了 `gawk` 和 `speedtest-cli` 及其依赖，以支持新的脚本功能。">
+      <option name="closed" value="true" />
+      <created>1751440150654</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1751440150654</updated>
+    </task>
+    <task id="LOCAL-00003" summary="update：README">
+      <option name="closed" value="true" />
+      <created>1751440355165</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1751440355165</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -111,7 +136,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: 增加多架构支持与自定义配置&#10;&#10;本次提交引入了多项增强功能，以提升项目的通用性和性能。&#10;&#10;- **多架构支持:** Dockerfile 现采用多阶段构建，同时支持 `amd64` 和 `arm64` 架构，使项目能运行在树莓派、ARM 云服务器等更多设备上。&#10;&#10;- **带宽配置:** 用户现在可以通过 `UP_MBPS` 和 `DOWN_MBPS` 环境变量来定制 Hysteria 的带宽限制。&#10;&#10;- **自定义混淆:** 混淆类型 (`OBFS_TYPE`) 和混淆密码 (`OBFS_PASSWORD`) 现已支持通过环境变量进行配置，为高级用户提供了更大的灵活性。&#10;&#10;- **构建优化:** 多阶段构建通过缓存二进制文件下载层，显著加快了后续的镜像构建速度。" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 增加多架构支持与自定义配置&#10;&#10;本次提交引入了多项增强功能，以提升项目的通用性和性能。&#10;&#10;- **多架构支持:** Dockerfile 现采用多阶段构建，同时支持 `amd64` 和 `arm64` 架构，使项目能运行在树莓派、ARM 云服务器等更多设备上。&#10;&#10;- **带宽配置:** 用户现在可以通过 `UP_MBPS` 和 `DOWN_MBPS` 环境变量来定制 Hysteria 的带宽限制。&#10;&#10;- **自定义混淆:** 混淆类型 (`OBFS_TYPE`) 和混淆密码 (`OBFS_PASSWORD`) 现已支持通过环境变量进行配置，为高级用户提供了更大的灵活性。&#10;&#10;- **构建优化:** 多阶段构建通过缓存二进制文件下载层，显著加快了后续的镜像构建速度。" />
+    <MESSAGE value="feat: 实现全自动智能配置并修复启动健壮性问题&#10;&#10;本次提交是一次重大更新，引入了全自动的密码和带宽配置功能，并对启动脚本进行了全面加固，以解决一系列在实际部署中发现的竞态条件和逻辑缺陷。&#10;&#10;**新增核心功能:**&#10;&#10;1.  **自动密码生成:**&#10;    - 如果用户未提供 `PASSWORD` 环境变量，系统将自动生成一个 16 位的强随机密码，并清晰地打印在启动日志中，避免了用户使用弱密码或忘记设置密码的问题。&#10;&#10;2.  **自动带宽测速:**&#10;    - 新增 `AUTO_SPEEDTEST` 选项（默认开启）。启动时，容器会自动运行 `speedtest-cli` 来检测服务器的实际上下行带宽，并以此为依据智能配置 Hysteria 的性能参数，从而最大化利用服务器资源。&#10;&#10;**健壮性修复与优化:**&#10;&#10;1.  **修复配置优先级逻辑:**&#10;    - **问题:** 即使用户未手动设置带宽，`docker-compose.yml` 的默认值也会覆盖自动测速。&#10;    - **解决:** 将所有默认值处理逻辑从 `docker-compose.yml` 移至 `entrypoint.sh`，确保了正确的优先级顺序：**用户手动设置 &gt; 自动测速 &gt; 脚本内默认值**。&#10;&#10;2.  **解决启动时网络竞态问题:**&#10;    - **问题:** 自动测速在容器网络完全就绪前执行，导致立即失败。&#10;    - **解决:** 在测速前增加了 5 秒的等待时间 (`sleep 5`)，以确保网络初始化完成，从而大幅提升了测速成功率。&#10;&#10;3.  **修复随机密码长度不足问题:**&#10;    - **问题:** 旧的密码生成方法可能产生不满足 Hysteria 最低长度要求的密码，导致服务启动失败。&#10;    - **解决:** 采用 `LC_ALL=C tr -dc 'A-Za-z0-9' &lt; /dev/urandom | head -c 16` 的可靠方法，确保密码长度始终为 16 位。&#10;&#10;4.  **全面提升脚本健壮性:**&#10;    - **安全设置:** 脚本启用 `set -eu`，防止因变量未定义或命令失败而产生意外行为。&#10;    - **日志优化:** 调整了日志输出顺序，使其更加线性、易于理解，并为所有关键步骤和错误场景增加了清晰的提示信息。&#10;    - **依赖安装:** 在 `Dockerfile` 中添加了 `gawk` 和 `speedtest-cli` 及其依赖，以支持新的脚本功能。" />
+    <MESSAGE value="update：README" />
+    <option name="LAST_COMMIT_MESSAGE" value="update：README" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

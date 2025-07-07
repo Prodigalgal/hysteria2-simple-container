@@ -51,8 +51,7 @@ services:
       # TCP Router: 负责处理伪装流量和申请/管理 TLS 证书
       - "traefik.tcp.routers.hysteria-tcp.entrypoints=websecure"
       - "traefik.tcp.routers.hysteria-tcp.rule=HostSNI(`${DOMAIN}`)"
-      - "traefik.tcp.routers.hysteria-tcp.tls=true"
-      - "traefik.tcp.routers.hysteria-tcp.tls.certresolver=le"
+      - "traefik.tcp.routers.hysteria-tcp.tls.passthrough=true"
       - "traefik.tcp.services.hysteria-tcp.loadbalancer.server.port=443"
 
       # UDP Router: 负责将 QUIC 流量无条件转发给 Hysteria
