@@ -1,62 +1,53 @@
-# hy2/docker-compose.yml (最终修正版：移除默认值以修复优先级问题)
+# hy2/docker-compose.yml (v3 - 移除 sysctls)
 services:
   traefik:
-    image: traefik:v2.10
+    image: traefik:v2.11
     container_name: traefik
     restart: unless-stopped
     ports:
-      - "80:80/tcp"
+      # 不再需要 80 端口，TLS-ALPN 挑战在 443 上完成
       - "443:443/tcp"
       - "443:443/udp"
     volumes:
       - ./letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      - "LE_EMAIL=${LE_EMAIL}"
     command:
+      - --log.level=DEBUG
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
-      - --entrypoints.web.address=:80/tcp
       - --entrypoints.websecure.address=:443/tcp
       - --entrypoints.quic.address=:443/udp
+      - --certificatesresolvers.le.acme.tlschallenge=true
       - --certificatesresolvers.le.acme.email=${LE_EMAIL}
       - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
-      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+    env_file:
+      - .env
 
   hysteria-server:
     build:
       context: .
       args:
-        # 将版本号作为构建参数传递给 Dockerfile
-        - HYSTERIA_VERSION=${HYSTERIA_VERSION:-2.6.0}
+        - HYSTERIA_VERSION=${HYSTERIA_VERSION}
+        - HYSTERIA_ARCH_SUFFIX=${HYSTERIA_ARCH_SUFFIX}
     container_name: hysteria-server
     restart: unless-stopped
-    environment:
-      # --- 核心配置 ---
-      - "DOMAIN=${DOMAIN}"
-      - "PASSWORD=${PASSWORD}"                   # 留空将自动生成随机密码
-
-      # --- 智能优化配置 ---
-      - "AUTO_SPEEDTEST=${AUTO_SPEEDTEST:-true}" # 是否自动测速 (true/false)
-      - "SPEED_DISCOUNT=${SPEED_DISCOUNT:-0.8}"  # 测速折扣率
-
-      # --- 自定义性能与混淆配置 ---
-      # 【重要修正】移除了这里的默认值 ":-100"，让脚本来处理默认逻辑
-      - "UP_MBPS=${UP_MBPS}"                     # 上传速度 (Mbps)
-      - "DOWN_MBPS=${DOWN_MBPS}"                   # 下载速度 (Mbps)
-      - "OBFS_TYPE=${OBFS_TYPE:-salamander}"       # 混淆类型
-      - "OBFS_PASSWORD=${OBFS_PASSWORD}"           # 混淆密码 (默认为主密码)
+    depends_on:
+      - traefik
+    # 【重要修正】移除了 sysctls 部分以兼容更多运行环境
+    # sysctls:
+    #   - net.core.rmem_max=26214400
+    #   - net.core.wmem_max=26214400
     labels:
       - "traefik.enable=true"
-      # TCP Router: 负责处理伪装流量和申请/管理 TLS 证书
-      - "traefik.tcp.routers.hysteria-tcp.entrypoints=websecure"
       - "traefik.tcp.routers.hysteria-tcp.rule=HostSNI(`${DOMAIN}`)"
-      - "traefik.tcp.routers.hysteria-tcp.tls.passthrough=true"
+      - "traefik.tcp.routers.hysteria-tcp.entrypoints=websecure"
+      - "traefik.tcp.routers.hysteria-tcp.tls.certresolver=le"
+      - "traefik.tcp.routers.hysteria-tcp.tls.passthrough=false"
       - "traefik.tcp.services.hysteria-tcp.loadbalancer.server.port=443"
-
-      # UDP Router: 负责将 QUIC 流量无条件转发给 Hysteria
       - "traefik.udp.routers.hysteria-udp.entrypoints=quic"
       - "traefik.udp.services.hysteria-udp.loadbalancer.server.port=443"
     volumes:
       - ./entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
       - ./letsencrypt:/etc/hysteria/certs:ro
+    env_file:
+      - .env
