@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
-# hy2/entrypoint.sh (v3 - 增加默认 ACL)
+# hy2/entrypoint.sh (v4 - 应用伪装修复)
 
-# ... (脚本前面 1 到 4 部分不变) ...
 # --- 1. 初始化所有环境变量 ---
 echo "--- 正在初始化配置 ---"
 DOMAIN=${DOMAIN:?错误: 必须设置 DOMAIN 环境变量}
@@ -113,7 +112,7 @@ echo "证书和私钥已成功提取到 ${CERT_DIR}"
 
 # --- 5. 生成 Hysteria 配置文件 ---
 echo "--- 正在生成 Hysteria 配置文件 ---"
-# 【重要修正】增加了默认的 acl 和 outbounds，允许所有流量
+# 【修复】为 masquerade 添加 listenHTTPS，使其监听一个内部TCP端口来处理伪装流量
 JSON_CONFIG=$(jq -n \
   --arg listen ":${LISTEN_PORT}" \
   --arg cert_file "$CERT_FILE" \
@@ -129,7 +128,11 @@ JSON_CONFIG=$(jq -n \
     tls: { cert: $cert_file, key: $key_file },
     auth: { type: "password", password: $password },
     obfs: { type: $obfs_type, salamander: { password: $obfs_password } },
-    masquerade: { type: "proxy", proxy: { url: $masquerade_url, rewriteHost: true } },
+    masquerade: {
+        type: "proxy",
+        proxy: { url: $masquerade_url, rewriteHost: true },
+        listenHTTPS: ":4433"
+    },
     up_mbps: $up_mbps,
     down_mbps: $down_mbps,
     disable_mtu_discovery: false,
@@ -146,7 +149,6 @@ echo "伪装目标: ${MASQUERADE_URL}"
 
 
 # --- 6. 启动 Hysteria 并生成分享链接 ---
-# ... (这部分逻辑不变) ...
 echo "--- 正在启动服务 ---"
 hysteria server -c /etc/hysteria/config.json &
 
