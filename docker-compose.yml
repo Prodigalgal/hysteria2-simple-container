@@ -1,25 +1,42 @@
-# hy2/docker-compose.yml (v4 - 应用伪装修复和性能优化)
+# hy2/docker-compose.yml (v7 - 修复 Traefik 健康检查)
 services:
   traefik:
     image: traefik:v2.11
     container_name: traefik
     restart: unless-stopped
     ports:
-      # 不再需要 80 端口，TLS-ALPN 挑战在 443 上完成
+      # 公网端口
       - "443:443/tcp"
       - "443:443/udp"
+      # 【修复】为 API 和 Ping 暴露 8080 端口 (可以不映射到宿主机，仅供内部访问)
+      # 如果你需要在宿主机上访问 Traefik Dashboard，请使用 "8080:8080"
+      - "127.0.0.1:8080:8080" # 将 Dashboard/API 绑定到 localhost，更安全
     volumes:
       - ./letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command:
-      - --log.level=INFO # 日志级别从 DEBUG 改为 INFO，减少不必要的日志输出
+      - --log.level=INFO
+      # 【修复】启用 /ping 端点
+      - --ping=true
+      # 【修复】启用 API 和 Dashboard (这样我们才能通过 8080 访问)
+      - --api.insecure=true
+      # --api=true # 如果需要安全访问，使用这个并配置路由
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --entrypoints.websecure.address=:443/tcp
       - --entrypoints.quic.address=:443/udp
+      # 【修复】定义 traefik 管理入口点
+      - --entrypoints.traefik.address=:8080
       - --certificatesresolvers.le.acme.tlschallenge=true
       - --certificatesresolvers.le.acme.email=${LE_EMAIL}
       - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
+    healthcheck:
+      # 【修复】明确告诉 healthcheck 命令访问 8080 端口
+      test: ["CMD", "traefik", "healthcheck", "--ping.entrypoint=traefik"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     env_file:
       - .env
 
@@ -33,21 +50,27 @@ services:
     restart: unless-stopped
     depends_on:
       - traefik
-    # 【优化】为Linux宿主机启用性能调优，如果您的环境不支持，请注释掉此部分
-#    sysctls:
-#      - net.core.rmem_max=26214400
-#      - net.core.wmem_max=26214400
+    # sysctls: # 如果您的环境支持，请取消注释
+    #   - net.core.rmem_max=26214400
+    #   - net.core.wmem_max=26214400
     labels:
       - "traefik.enable=true"
-      # TCP 路由，用于处理浏览器等标准HTTPS流量的伪装
+      # TCP 路由: 让 Traefik 终结 TLS
       - "traefik.tcp.routers.hysteria-tcp.rule=HostSNI(`${DOMAIN}`)"
       - "traefik.tcp.routers.hysteria-tcp.entrypoints=websecure"
-#      - "traefik.tcp.routers.hysteria-tcp.tls.certresolver=le"
-      - "traefik.tcp.routers.hysteria-tcp.tls.passthrough=true"
-      - "traefik.tcp.services.hysteria-tcp.loadbalancer.server.port=4433" #【修复】将TCP流量转发到Hysteria的伪装端口
-      # UDP 路由，用于处理Hysteria客户端的QUIC流量
+      - "traefik.tcp.routers.hysteria-tcp.tls.passthrough=false"
+      - "traefik.tcp.routers.hysteria-tcp.tls.certresolver=le"
+      - "traefik.tcp.services.hysteria-tcp.loadbalancer.server.port=8088"
+
+      # UDP 路由: Hysteria 客户端
       - "traefik.udp.routers.hysteria-udp.entrypoints=quic"
       - "traefik.udp.services.hysteria-udp.loadbalancer.server.port=443"
+    healthcheck:
+      test: ["CMD-SHELL", "netstat -uln | grep -q :443 || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     volumes:
       - ./entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
       - ./letsencrypt:/etc/hysteria/certs:ro

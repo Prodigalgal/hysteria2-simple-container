@@ -1,12 +1,12 @@
 #!/usr/bin/env sh
-# hy2/entrypoint.sh (v4 - 应用伪装修复)
+# hy2/entrypoint.sh (v6 - TLS 卸载 & 健康检查)
 
 # --- 1. 初始化所有环境变量 ---
 echo "--- 正在初始化配置 ---"
 DOMAIN=${DOMAIN:?错误: 必须设置 DOMAIN 环境变量}
 LE_EMAIL=${LE_EMAIL:?错误: 必须设置 LE_EMAIL 环境变量}
 PASSWORD_RAW=${PASSWORD:-}
-LISTEN_PORT=443
+LISTEN_PORT=443 # Hysteria 核心 UDP 端口
 UP_MBPS_USER=${UP_MBPS:-}
 DOWN_MBPS_USER=${DOWN_MBPS:-}
 AUTO_SPEEDTEST=${AUTO_SPEEDTEST:-true}
@@ -32,7 +32,7 @@ else
 fi
 OBFS_PASSWORD_VAL=${OBFS_PASSWORD_RAW:-$PASSWORD}
 
-# --- 3. 带宽优先级逻辑处理 ---
+# --- 3. 带宽优先级逻辑处理 (保持不变) ---
 echo "--- 正在配置带宽 ---"
 if [ -n "$UP_MBPS_USER" ] && [ -n "$DOWN_MBPS_USER" ]; then
   echo "检测到用户手动设置带宽，将使用此配置。"
@@ -75,7 +75,7 @@ fi
 echo "最终带宽设定: 上传 ${UP_MBPS} Mbps, 下载 ${DOWN_MBPS} Mbps"
 
 
-# --- 4. 证书提取与验证 ---
+# --- 4. 证书提取与验证 (保持不变) ---
 echo "--- 正在处理证书 ---"
 echo "正在等待 Traefik 生成证书文件: ${ACME_JSON_PATH}"
 timeout=300
@@ -110,9 +110,9 @@ if [ ! -s "$CERT_FILE" ] || [ ! -s "$KEY_FILE" ]; then
 fi
 echo "证书和私钥已成功提取到 ${CERT_DIR}"
 
-# --- 5. 生成 Hysteria 配置文件 ---
+# --- 5. 生成 Hysteria 配置文件 (核心变更) ---
 echo "--- 正在生成 Hysteria 配置文件 ---"
-# 【修复】为 masquerade 添加 listenHTTPS，使其监听一个内部TCP端口来处理伪装流量
+# 【修复】为 masquerade 添加 listenHTTP 和 listenHTTPS，以支持 Traefik 的 TLS 卸载
 JSON_CONFIG=$(jq -n \
   --arg listen ":${LISTEN_PORT}" \
   --arg cert_file "$CERT_FILE" \
@@ -131,7 +131,8 @@ JSON_CONFIG=$(jq -n \
     masquerade: {
         type: "proxy",
         proxy: { url: $masquerade_url, rewriteHost: true },
-        listenHTTPS: ":4433"
+        listenHTTPS: ":4433",
+        listenHTTP: ":8088"
     },
     up_mbps: $up_mbps,
     down_mbps: $down_mbps,
@@ -148,7 +149,7 @@ echo "配置文件已生成。"
 echo "伪装目标: ${MASQUERADE_URL}"
 
 
-# --- 6. 启动 Hysteria 并生成分享链接 ---
+# --- 6. 启动 Hysteria 并生成分享链接 (保持不变) ---
 echo "--- 正在启动服务 ---"
 hysteria server -c /etc/hysteria/config.json &
 
