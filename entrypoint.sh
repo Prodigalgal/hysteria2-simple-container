@@ -1,12 +1,13 @@
 #!/usr/bin/env sh
-# hy2/entrypoint.sh (v6 - TLS 卸载 & 健康检查)
+# hy2/entrypoint.sh (v7 - 修复带宽逻辑)
 
 # --- 1. 初始化所有环境变量 ---
 echo "--- 正在初始化配置 ---"
 DOMAIN=${DOMAIN:?错误: 必须设置 DOMAIN 环境变量}
 LE_EMAIL=${LE_EMAIL:?错误: 必须设置 LE_EMAIL 环境变量}
 PASSWORD_RAW=${PASSWORD:-}
-LISTEN_PORT=443 # Hysteria 核心 UDP 端口
+LISTEN_PORT=443
+# 从 .env 读取用户设置
 UP_MBPS_USER=${UP_MBPS:-}
 DOWN_MBPS_USER=${DOWN_MBPS:-}
 AUTO_SPEEDTEST=${AUTO_SPEEDTEST:-true}
@@ -19,7 +20,7 @@ CERT_DIR="/tmp"
 CERT_FILE="${CERT_DIR}/fullchain.pem"
 KEY_FILE="${CERT_DIR}/privkey.pem"
 
-# --- 2. 智能密码处理 ---
+# --- 2. 智能密码处理 (保持不变) ---
 if [ -z "$PASSWORD_RAW" ] || [ "$PASSWORD_RAW" = "changeme" ]; then
   PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 16)
   echo "############################################################" >&2
@@ -32,14 +33,10 @@ else
 fi
 OBFS_PASSWORD_VAL=${OBFS_PASSWORD_RAW:-$PASSWORD}
 
-# --- 3. 带宽优先级逻辑处理 (保持不变) ---
+# --- 3. 带宽优先级逻辑处理 (已修复) ---
 echo "--- 正在配置带宽 ---"
-if [ -n "$UP_MBPS_USER" ] && [ -n "$DOWN_MBPS_USER" ]; then
-  echo "检测到用户手动设置带宽，将使用此配置。"
-  UP_MBPS=$UP_MBPS_USER
-  DOWN_MBPS=$DOWN_MBPS_USER
-elif [ "$AUTO_SPEEDTEST" = "true" ]; then
-  echo "等待 5 秒，以确保容器网络初始化完成..."
+if [ "$AUTO_SPEEDTEST" = "true" ]; then
+  echo "自动测速已开启。等待 5 秒，以确保容器网络初始化完成..."
   sleep 5
 
   echo "正在自动测速以设定带宽，此过程可能需要一分钟..."
@@ -67,8 +64,12 @@ elif [ "$AUTO_SPEEDTEST" = "true" ]; then
     UP_MBPS=100
     DOWN_MBPS=100
   fi
+elif [ -n "$UP_MBPS_USER" ] && [ -n "$DOWN_MBPS_USER" ]; then
+  echo "自动测速已禁用，检测到用户手动设置带宽，将使用此配置。"
+  UP_MBPS=$UP_MBPS_USER
+  DOWN_MBPS=$DOWN_MBPS_USER
 else
-  echo "自动测速已禁用，使用默认带宽 (100 Mbps)。"
+  echo "自动测速已禁用，且未手动设置带宽，使用默认带宽 (100 Mbps)。"
   UP_MBPS=100
   DOWN_MBPS=100
 fi
@@ -110,9 +111,8 @@ if [ ! -s "$CERT_FILE" ] || [ ! -s "$KEY_FILE" ]; then
 fi
 echo "证书和私钥已成功提取到 ${CERT_DIR}"
 
-# --- 5. 生成 Hysteria 配置文件 (核心变更) ---
+# --- 5. 生成 Hysteria 配置文件 (保持不变) ---
 echo "--- 正在生成 Hysteria 配置文件 ---"
-# 【修复】为 masquerade 添加 listenHTTP 和 listenHTTPS，以支持 Traefik 的 TLS 卸载
 JSON_CONFIG=$(jq -n \
   --arg listen ":${LISTEN_PORT}" \
   --arg cert_file "$CERT_FILE" \
