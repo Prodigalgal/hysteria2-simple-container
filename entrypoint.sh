@@ -1,13 +1,10 @@
 #!/usr/bin/env sh
-# hy2/entrypoint.sh (v7 - 修复带宽逻辑)
 
-# --- 1. 初始化所有环境变量 ---
 echo "--- 正在初始化配置 ---"
 DOMAIN=${DOMAIN:?错误: 必须设置 DOMAIN 环境变量}
 LE_EMAIL=${LE_EMAIL:?错误: 必须设置 LE_EMAIL 环境变量}
 PASSWORD_RAW=${PASSWORD:-}
 LISTEN_PORT=443
-# 从 .env 读取用户设置
 UP_MBPS_USER=${UP_MBPS:-}
 DOWN_MBPS_USER=${DOWN_MBPS:-}
 AUTO_SPEEDTEST=${AUTO_SPEEDTEST:-true}
@@ -20,7 +17,6 @@ CERT_DIR="/tmp"
 CERT_FILE="${CERT_DIR}/fullchain.pem"
 KEY_FILE="${CERT_DIR}/privkey.pem"
 
-# --- 2. 智能密码处理 (保持不变) ---
 if [ -z "$PASSWORD_RAW" ] || [ "$PASSWORD_RAW" = "changeme" ]; then
   PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 16)
   echo "############################################################" >&2
@@ -33,7 +29,6 @@ else
 fi
 OBFS_PASSWORD_VAL=${OBFS_PASSWORD_RAW:-$PASSWORD}
 
-# --- 3. 带宽优先级逻辑处理 (已修复) ---
 echo "--- 正在配置带宽 ---"
 if [ "$AUTO_SPEEDTEST" = "true" ]; then
   echo "自动测速已开启。等待 5 秒，以确保容器网络初始化完成..."
@@ -75,8 +70,6 @@ else
 fi
 echo "最终带宽设定: 上传 ${UP_MBPS} Mbps, 下载 ${DOWN_MBPS} Mbps"
 
-
-# --- 4. 证书提取与验证 (保持不变) ---
 echo "--- 正在处理证书 ---"
 echo "正在等待 Traefik 生成证书文件: ${ACME_JSON_PATH}"
 timeout=300
@@ -111,7 +104,6 @@ if [ ! -s "$CERT_FILE" ] || [ ! -s "$KEY_FILE" ]; then
 fi
 echo "证书和私钥已成功提取到 ${CERT_DIR}"
 
-# --- 5. 生成 Hysteria 配置文件 (保持不变) ---
 echo "--- 正在生成 Hysteria 配置文件 ---"
 JSON_CONFIG=$(jq -n \
   --arg listen ":${LISTEN_PORT}" \
@@ -148,8 +140,6 @@ echo "$JSON_CONFIG" > /etc/hysteria/config.json
 echo "配置文件已生成。"
 echo "伪装目标: ${MASQUERADE_URL}"
 
-
-# --- 6. 启动 Hysteria 并生成分享链接 (保持不变) ---
 echo "--- 正在启动服务 ---"
 hysteria server -c /etc/hysteria/config.json &
 
