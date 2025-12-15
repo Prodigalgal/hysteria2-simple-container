@@ -4,6 +4,7 @@ ARG HYSTERIA_VERSION=2.6.2
 ARG TARGETARCH
 ARG HYSTERIA_ARCH_SUFFIX
 
+# 下载 Hysteria 核心
 ENV TAG=app/v${HYSTERIA_VERSION}
 ENV DOWNLOAD_URL="https://github.com/apernet/hysteria/releases/download/${TAG}/hysteria-linux-"
 
@@ -27,24 +28,40 @@ RUN case ${TARGETARCH} in \
     fi && \
     chmod +x /hysteria
 
+# 下载官方 Ookla Speedtest CLI (C++版本，静态编译，轻量且高性能)
+FROM alpine:3.19 AS speedtest-downloader
+ARG TARGETARCH
+RUN apk add --no-cache curl tar
+RUN case ${TARGETARCH} in \
+      "amd64") ST_ARCH="x86_64" ;; \
+      "arm64") ST_ARCH="aarch64" ;; \
+      *) echo "不支持的架构用于 Speedtest"; exit 1 ;; \
+    esac && \
+    curl -L "https://install.speedtest.net/app/cli/ookla-speedtest-1.2.0-linux-${ST_ARCH}.tgz" -o speedtest.tgz && \
+    tar -xvf speedtest.tgz -C /usr/local/bin speedtest && \
+    chmod +x /usr/local/bin/speedtest
+
+# --- 最终镜像 ---
 FROM alpine:3.19
 
+# 仅安装必要的基础工具，移除 Python 及其依赖
 RUN apk add --no-cache \
       ca-certificates \
       jq \
-      python3 \
-      py3-pip \
-      gawk
-
-RUN pip3 install --no-cache-dir speedtest-cli --break-system-packages
+      bash \
+      gawk \
+      curl
 
 WORKDIR /etc/hysteria
 
+# 从构建阶段复制二进制文件
 COPY --from=downloader /hysteria /usr/local/bin/hysteria
+COPY --from=speedtest-downloader /usr/local/bin/speedtest /usr/local/bin/speedtest
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-EXPOSE 443/tcp 443/udp
+# Hysteria 直接占用 UDP 443
+EXPOSE 443/udp
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
