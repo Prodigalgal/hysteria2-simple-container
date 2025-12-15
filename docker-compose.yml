@@ -44,6 +44,12 @@ services:
     restart: unless-stopped
     depends_on:
       - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.hysteria-fallback.rule=HostSNI(`${DOMAIN}`)"
+      - "traefik.tcp.routers.hysteria-fallback.entrypoints=websecure"
+      - "traefik.tcp.routers.hysteria-fallback.tls.certresolver=le"
+      - "traefik.tcp.services.hysteria-fallback.loadbalancer.server.port=443"
     healthcheck:
       test: ["CMD-SHELL", "netstat -uln | grep -q :443 || exit 1"]
       interval: 20s
