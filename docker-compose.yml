@@ -1,6 +1,6 @@
 services:
   traefik:
-    image: traefik:v2.11
+    image: traefik:v3.6.4
     container_name: traefik
     restart: unless-stopped
     ports:
@@ -10,7 +10,7 @@ services:
       - ./letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command:
-      - --log.level=INFO
+      - --log.level=${TRAEFIK_LOG_LEVEL}
       - --ping=true
       - --api.insecure=true
       - --providers.docker=true
@@ -46,16 +46,14 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.tcp.routers.hysteria-fallback.rule=HostSNI(`${DOMAIN}`)"
-      - "traefik.tcp.routers.hysteria-fallback.entrypoints=websecure"
-      - "traefik.tcp.routers.hysteria-fallback.tls.certresolver=le"
-      - "traefik.tcp.services.hysteria-fallback.loadbalancer.server.port=443"
-    healthcheck:
-      test: ["CMD-SHELL", "netstat -uln | grep -q :443 || exit 1"]
-      interval: 20s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - "traefik.http.routers.hysteria-masq.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.hysteria-masq.entrypoints=websecure"
+      - "traefik.http.routers.hysteria-masq.tls.certresolver=le"
+      - "traefik.http.routers.hysteria-masq.service=noop@internal"
+      - "traefik.http.middlewares.to-mcdonalds.redirectregex.regex=^https?://.*"
+      - "traefik.http.middlewares.to-mcdonalds.redirectregex.replacement=https://www.mcdonalds.com"
+      - "traefik.http.middlewares.to-mcdonalds.redirectregex.permanent=true"
+      - "traefik.http.routers.hysteria-masq.middlewares=to-mcdonalds"
     volumes:
       - ./entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
       - ./letsencrypt:/etc/hysteria/certs:ro
