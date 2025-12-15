@@ -1,6 +1,8 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-echo "--- 正在初始化配置 ---"
+set -e
+
+echo "--- 正在初始化配置 (Performance Edition) ---"
 DOMAIN=${DOMAIN:?错误: 必须设置 DOMAIN 环境变量}
 LE_EMAIL=${LE_EMAIL:?错误: 必须设置 LE_EMAIL 环境变量}
 PASSWORD_RAW=${PASSWORD:-}
@@ -22,7 +24,6 @@ if [ -z "$PASSWORD_RAW" ] || [ "$PASSWORD_RAW" = "changeme" ]; then
   echo "############################################################" >&2
   echo "# 警告: 未提供密码，已自动生成随机密码。" >&2
   echo "# 您的新密码是: ${PASSWORD}" >&2
-  echo "# 请务必妥善保存此密码！" >&2
   echo "############################################################" >&2
 else
   PASSWORD="$PASSWORD_RAW"
@@ -31,26 +32,21 @@ OBFS_PASSWORD_VAL=${OBFS_PASSWORD_RAW:-$PASSWORD}
 
 echo "--- 正在配置带宽 ---"
 if [ "$AUTO_SPEEDTEST" = "true" ]; then
-  echo "自动测速已开启。等待 5 秒，以确保容器网络初始化完成..."
-  sleep 5
+  echo "自动测速已开启。使用 Ookla 原生客户端测速..."
+  SPEED_JSON=$(timeout 60s speedtest --accept-license --accept-gdpr -f json 2>/dev/null || echo "")
 
-  echo "正在自动测速以设定带宽，此过程可能需要一分钟..."
-  SPEED_JSON=$(timeout 90s speedtest-cli --json 2>/dev/null || echo "")
+  if [ -n "$SPEED_JSON" ] && [ "$(echo "$SPEED_JSON" | jq 'has("download")')" = "true" ]; then
+    DOWN_BYTES=$(echo "$SPEED_JSON" | jq -r '.download.bandwidth')
+    UP_BYTES=$(echo "$SPEED_JSON" | jq -r '.upload.bandwidth')
 
-  if [ -n "$SPEED_JSON" ] && [ "$(echo "$SPEED_JSON" | jq 'has("download") and has("upload")')" = "true" ]; then
-    DOWN_BPS=$(echo "$SPEED_JSON" | jq -r '.download')
-    UP_BPS=$(echo "$SPEED_JSON" | jq -r '.upload')
+    if [ "$DOWN_BYTES" != "null" ] && [ "$UP_BYTES" != "null" ] && [ "$DOWN_BYTES" -gt 0 ]; then
+        DOWN_MBPS=$(awk "BEGIN {printf \"%.0f\", $DOWN_BYTES * 8 / 1000000 * $SPEED_DISCOUNT}")
+        UP_MBPS=$(awk "BEGIN {printf \"%.0f\", $UP_BYTES * 8 / 1000000 * $SPEED_DISCOUNT}")
 
-    if [ "$DOWN_BPS" != "null" ] && [ "$UP_BPS" != "null" ] && [ "$(printf "%.0f" "$DOWN_BPS")" != "0" ]; then
-        DOWN_MBPS_RAW=$(gawk "BEGIN {print $DOWN_BPS / 1000000 * $SPEED_DISCOUNT}")
-        UP_MBPS_RAW=$(gawk "BEGIN {print $UP_BPS / 1000000 * $SPEED_DISCOUNT}")
-
-        DOWN_MBPS=$(printf "%.0f" "$DOWN_MBPS_RAW")
-        UP_MBPS=$(printf "%.0f" "$UP_MBPS_RAW")
-
-        echo "测速完成! 自动设定带宽 -> 下载: ${DOWN_MBPS} Mbps, 上传: ${UP_MBPS} Mbps (已应用 ${SPEED_DISCOUNT} 折扣)"
+        echo "测速完成! 原始下载: $(awk "BEGIN {print $DOWN_BYTES * 8 / 1000000}") Mbps"
+        echo "应用折扣 ($SPEED_DISCOUNT) 后 -> 下载: ${DOWN_MBPS} Mbps, 上传: ${UP_MBPS} Mbps"
     else
-        echo "警告: 测速结果无效 (可能是 0)，将使用默认带宽 (100 Mbps)。"
+        echo "警告: 测速结果无效，将使用默认带宽 (100 Mbps)。"
         UP_MBPS=100
         DOWN_MBPS=100
     fi
@@ -60,23 +56,20 @@ if [ "$AUTO_SPEEDTEST" = "true" ]; then
     DOWN_MBPS=100
   fi
 elif [ -n "$UP_MBPS_USER" ] && [ -n "$DOWN_MBPS_USER" ]; then
-  echo "自动测速已禁用，检测到用户手动设置带宽，将使用此配置。"
+  echo "使用用户手动设置的带宽。"
   UP_MBPS=$UP_MBPS_USER
   DOWN_MBPS=$DOWN_MBPS_USER
 else
-  echo "自动测速已禁用，且未手动设置带宽，使用默认带宽 (100 Mbps)。"
+  echo "未测速且未设置，使用默认带宽 (100 Mbps)。"
   UP_MBPS=100
   DOWN_MBPS=100
 fi
-echo "最终带宽设定: 上传 ${UP_MBPS} Mbps, 下载 ${DOWN_MBPS} Mbps"
 
 echo "--- 正在处理证书 ---"
-echo "正在等待 Traefik 生成证书文件: ${ACME_JSON_PATH}"
 timeout=300
 cert_found=false
 while [ $timeout -gt 0 ]; do
     if [ -s "$ACME_JSON_PATH" ]; then
-        echo "acme.json 已找到。"
         CERT_DATA=$(jq -r '.le.Certificates[] | select(.domain.main == "'$DOMAIN'") | .certificate' "$ACME_JSON_PATH" 2>/dev/null || echo "")
         KEY_DATA=$(jq -r '.le.Certificates[] | select(.domain.main == "'$DOMAIN'") | .key' "$ACME_JSON_PATH" 2>/dev/null || echo "")
         if [ -n "$CERT_DATA" ] && [ "$CERT_DATA" != "null" ]; then
@@ -84,27 +77,20 @@ while [ $timeout -gt 0 ]; do
             break
         fi
     fi
-    echo "尚未在 acme.json 中找到域名 [${DOMAIN}] 的证书，等待 10 秒后重试... (剩余时间: ${timeout}s)"
-    sleep 10
-    timeout=$((timeout - 10))
+    echo "等待 acme.json 中出现域名 [${DOMAIN}] 的证书... (${timeout}s)"
+    sleep 5
+    timeout=$((timeout - 5))
 done
 
 if [ "$cert_found" = "false" ]; then
-    echo "错误：等待证书超时！请检查 Traefik 日志以确定问题，并确认域名解析正确。" >&2
+    echo "错误：获取证书超时！请检查 Traefik 日志。" >&2
     exit 1
 fi
 
-echo "正在从 acme.json 中为域名 [${DOMAIN}] 提取证书..."
 echo "$CERT_DATA" | base64 -d > "$CERT_FILE"
 echo "$KEY_DATA" | base64 -d > "$KEY_FILE"
+echo "证书提取成功。"
 
-if [ ! -s "$CERT_FILE" ] || [ ! -s "$KEY_FILE" ]; then
-  echo "错误：证书或私钥文件生成失败，文件为空。" >&2
-  exit 1
-fi
-echo "证书和私钥已成功提取到 ${CERT_DIR}"
-
-echo "--- 正在生成 Hysteria 配置文件 ---"
 JSON_CONFIG=$(jq -n \
   --arg listen ":${LISTEN_PORT}" \
   --arg cert_file "$CERT_FILE" \
@@ -122,26 +108,15 @@ JSON_CONFIG=$(jq -n \
     obfs: { type: $obfs_type, salamander: { password: $obfs_password } },
     masquerade: {
         type: "proxy",
-        proxy: { url: $masquerade_url, rewriteHost: true },
-        listenHTTPS: ":4433",
-        listenHTTP: ":8088"
+        proxy: { url: $masquerade_url, rewriteHost: true }
     },
     up_mbps: $up_mbps,
     down_mbps: $down_mbps,
-    disable_mtu_discovery: false,
-    acl: {
-      inline: [
-        "direct(all)"
-      ]
-    }
+    disable_mtu_discovery: false
   }')
 
 echo "$JSON_CONFIG" > /etc/hysteria/config.json
 echo "配置文件已生成。"
-echo "伪装目标: ${MASQUERADE_URL}"
-
-echo "--- 正在启动服务 ---"
-hysteria server -c /etc/hysteria/config.json &
 
 url_encode() {
     gawk 'BEGIN{FS="";OFS=""} {for(i=1;i<=NF;i++) {if($i~/[a-zA-Z0-9_.-]/) printf "%s", $i; else printf "%%%02X", ord($i)}}'
@@ -153,17 +128,22 @@ PUBLIC_PORT=443
 HY2_LINK="hy2://${ENCODED_PASSWORD}@${DOMAIN}:${PUBLIC_PORT}?sni=${DOMAIN}&obfs=${OBFS_TYPE}&obfs-password=${ENCODED_OBFS_PASSWORD}"
 
 echo "────────────────────────────────────────────────────────"
-echo "  🎉 Hysteria2 服务已启动，配置如下 🎉"
-echo
-echo "  分享链接 (可直接导入客户端):"
-echo "  ${HY2_LINK}"
-echo
-echo "  手动配置详情:"
-echo "  - 服务器地址: ${DOMAIN}:${PUBLIC_PORT}"
-echo "  - 密码: ${PASSWORD}"
-echo "  - SNI: ${DOMAIN}"
-echo "  - 混淆 (${OBFS_TYPE}): ${OBFS_PASSWORD_VAL}"
-echo "  - 带宽: ${UP_MBPS} Mbps (上传) / ${DOWN_MBPS} Mbps (下载)"
+echo "  🚀 Hysteria2 (高性能版) 服务启动中..."
+echo "  链接: ${HY2_LINK}"
 echo "────────────────────────────────────────────────────────"
 
-wait
+(
+    while true; do
+        sleep 43200
+        NEW_CERT=$(jq -r '.le.Certificates[] | select(.domain.main == "'$DOMAIN'") | .certificate' "$ACME_JSON_PATH" 2>/dev/null || echo "")
+
+        if [ -n "$NEW_CERT" ] && [ "$NEW_CERT" != "$CERT_DATA" ]; then
+            echo "♻️ 检测到证书更新！正在退出容器以重启服务..."
+            kill 1
+            exit
+        fi
+    done
+) &
+
+# 启动 Hysteria (前台运行)
+exec hysteria server -c /etc/hysteria/config.json
