@@ -44,11 +44,6 @@ services:
     restart: unless-stopped
     depends_on:
       - traefik
-    sysctls:
-      - net.core.rmem_max=8000000
-      - net.core.wmem_max=8000000
-      - net.ipv4.udp_rmem_min=16384
-      - net.ipv4.udp_wmem_min=16384
     healthcheck:
       test: ["CMD-SHELL", "netstat -uln | grep -q :443 || exit 1"]
       interval: 20s
