@@ -115,11 +115,8 @@ JSON_CONFIG=$(jq -n \
 echo "$JSON_CONFIG" > /etc/hysteria/config.json
 echo "配置文件已生成。"
 
-url_encode() {
-    gawk 'BEGIN{FS="";OFS=""} {for(i=1;i<=NF;i++) {if($i~/[a-zA-Z0-9_.-]/) printf "%s", $i; else printf "%%%02X", ord($i)}}'
-}
-ENCODED_PASSWORD=$(echo -n "$PASSWORD" | url_encode)
-ENCODED_OBFS_PASSWORD=$(echo -n "$OBFS_PASSWORD_VAL" | url_encode)
+ENCODED_PASSWORD=$(echo -n "$PASSWORD" | jq -sRr @uri)
+ENCODED_OBFS_PASSWORD=$(echo -n "$OBFS_PASSWORD_VAL" | jq -sRr @uri)
 HY2_LINK="hy2://${ENCODED_PASSWORD}@${DOMAIN}:443?sni=${DOMAIN}&obfs=${OBFS_TYPE}&obfs-password=${ENCODED_OBFS_PASSWORD}"
 
 echo "────────────────────────────────────────────────────────"
